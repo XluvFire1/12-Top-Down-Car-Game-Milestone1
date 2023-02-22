@@ -10,6 +10,7 @@ TagManager:
   - Gas Can
   - Start Line
   - Finish Line
+  - Boost
   layers:
   - Default
   - TransparentFX

@@ -5,20 +5,22 @@ using UnityEngine;
 public class CarController : MonoBehaviour
 {
     [SerializeField] private float _moveSpeed = 5f;
+    [SerializeField] private float _boostAmount = 20f;
     [SerializeField] private float _sideMoveSpeed = 5f;
     [SerializeField] private float _xRange = 0;
+    [SerializeField] private bool _crossedFinishLine = false;
 
 
     // Start is called before the first frame update
     void Start()
     {
-     
+
     }
 
     // Update is called once per frame
     void Update()
     {
-           if(LevelManager.Instance.StartGame()) 
+        if(LevelManager.Instance.StartGame())
         {
             CarMovement();
         }
@@ -39,7 +41,11 @@ public class CarController : MonoBehaviour
             {
                 transform.position = new Vector3(-_xRange, transform.position.y, transform.position.z);
             }
+    }
 
+    public bool CrossedFinishLine()
+    {
+        return _crossedFinishLine;
     }
 
     private void OnCollisionEnter2D(Collision2D other)
@@ -59,7 +65,19 @@ public class CarController : MonoBehaviour
 
         if(other.gameObject.CompareTag("Finish Line"))
         {
-            //code here
+            _crossedFinishLine = true;
+            LevelManager.Instance.YouWon();
         }
+        if(other.gameObject.CompareTag("Boost"))
+        {
+            StartCoroutine(SetBoost());
+        }
+    }
+    IEnumerator SetBoost()
+    {
+        float currentSpeed = _moveSpeed;
+       _moveSpeed = currentSpeed = currentSpeed + _boostAmount;
+        yield return new WaitForSeconds(3f);
+        _moveSpeed = currentSpeed;
     }
 }

@@ -10,9 +10,11 @@ public class LevelManager : MonoBehaviour
     public static LevelManager Instance;
     public GameObject PausePanel;
     public GameObject GameOverPanel;
+    public GameObject YouWonPanel;
     public TextMeshProUGUI CoinCountText;
     public TextMeshProUGUI GasAmountText;
     public TextMeshProUGUI CountdownTimerText;
+    public Slider GasMeterSlider;
 
     private int _countdownTimer = 3;
 
@@ -32,6 +34,7 @@ public class LevelManager : MonoBehaviour
         Time.timeScale = 1;
         CoinCountText.text = _coinsCollected.ToString();
         GasAmountText.text = _gasAmount.ToString();
+        SetMaxFillAmount(_gasAmount);
         StartCoroutine(StartCountdownTimer());
     }
 
@@ -41,7 +44,7 @@ public class LevelManager : MonoBehaviour
 
     }
 
-    public void StartGame()
+    public bool StartGame()
     {
         //_isGameActive = true;
        return _isGameActive;
@@ -51,6 +54,11 @@ public class LevelManager : MonoBehaviour
     {
         Time.timeScale = 0;
         GameOverPanel.SetActive(true);
+    }
+    public void YouWon()
+    {
+       Time.timeScale = 0;
+        YouWonPanel.SetActive(true);
     }
 
     public void ReplayButtonPressed()
@@ -81,7 +89,23 @@ public class LevelManager : MonoBehaviour
         CoinCountText.text = _coinsCollected.ToString();
     }
 
-    public void UpdateGasAmount(int amount)
+    public void SetMaxFillAmount(int amount)
+    {
+        GasMeterSlider.maxValue = amount;
+        GasMeterSlider.value = amount;
+    }
+
+    public void SetGasFillAmount(int amount) // slide value
+    {
+        if (_currentGasAmount < _gasAmount)
+        {
+            _currentGasAmount += amount;
+            GasMeterSlider.value = _currentGasAmount;
+        }
+
+    }
+
+    public void UpdateGasAmount(int amount) // text value 
     {
         if (_currentGasAmount < _gasAmount)
         {
@@ -122,6 +146,9 @@ public class LevelManager : MonoBehaviour
             yield return new WaitForSeconds(3f);
             _currentGasAmount--;
             GasAmountText.text = _currentGasAmount.ToString();
+            GasMeterSlider.value = _currentGasAmount;
         }
+
+        GameOver();
     }
 }

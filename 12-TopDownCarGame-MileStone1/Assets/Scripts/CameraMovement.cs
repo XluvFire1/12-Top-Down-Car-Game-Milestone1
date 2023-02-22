@@ -9,16 +9,21 @@ public class CameraMovement : MonoBehaviour
     private Vector3 _offSet = new Vector3(0, 0, -10);
     public float FollowOffset = 0;
 
+    private CarController _carControllerScript;
+
     // Start is called before the first frame update
     void Start()
     {
-
+        _carControllerScript = GameObject.Find("Player").GetComponent<CarController>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        transform.position = new Vector3(0f, objectToFollow.transform.position.y + FollowOffset, -10f);
+        if(!_carControllerScript.CrossedFinishLine())
+        {
+            transform.position = new Vector3(0f, objectToFollow.transform.position.y + FollowOffset, -10f);
+        }
         
     }
 }
