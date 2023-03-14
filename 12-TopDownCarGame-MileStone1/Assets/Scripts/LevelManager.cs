@@ -14,7 +14,13 @@ public class LevelManager : MonoBehaviour
     public TextMeshProUGUI CoinCountText;
     public TextMeshProUGUI GasAmountText;
     public TextMeshProUGUI CountdownTimerText;
+    public TextMeshProUGUI CurrentDistanceWon, CurrentDistanceLost;
+    public TextMeshProUGUI BestDistanceWon, BestDistanceLost;
     public Slider GasMeterSlider;
+    public Transform PlayerCar;
+
+    [SerializeField] private Vector2 _startPos, _endPos;
+    private float _distanceTraveled;
 
     private int _countdownTimer = 3;
 
@@ -31,6 +37,7 @@ public class LevelManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        _startPos = PlayerCar.position;
         Time.timeScale = 1;
         CoinCountText.text = _coinsCollected.ToString();
         GasAmountText.text = _gasAmount.ToString();
@@ -52,19 +59,51 @@ public class LevelManager : MonoBehaviour
 
     public void GameOver()
     {
+        _endPos = PlayerCar.position;
+        CalculateDistanceTraveled();
         Time.timeScale = 0;
         GameOverPanel.SetActive(true);
+        GameManager.Instance.SetCoinCount(_coinsCollected);
     }
     public void YouWon()
     {
+        _endPos = PlayerCar.position;
+        CalculateDistanceTraveled();
        Time.timeScale = 0;
         YouWonPanel.SetActive(true);
+        GameManager.Instance.SetCoinCount(_coinsCollected);
+    }
+
+    public void CalculateDistanceTraveled()
+    {
+        float totalDistance = _endPos.y - _startPos.y;
+        //Debug.Log(totalDistance);
+        GameManager.Instance.SetBestDistanceTraveled(totalDistance);
+        float bestDistance = GameManager.Instance.GetBestDistanceTraveled();
+        CurrentDistanceLost.text = ((int)totalDistance).ToString();
+        CurrentDistanceWon.text = ((int)totalDistance).ToString();
+        BestDistanceLost.text = ((int)bestDistance).ToString();
+        BestDistanceWon.text = ((int)bestDistance).ToString();
     }
 
     public void ReplayButtonPressed()
     {
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
+
+    public void GoToNextCourse()
+    {
+        int currentSceneIndex;
+        currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
+        SceneManager.LoadScene(currentSceneIndex + 1);
+
+    }
+
+    public void CupComplete()
+    {
+        SceneManager.LoadScene("Main Menu");
+    }
+
 
     public void HomeButtonPressed()
     {
@@ -124,7 +163,8 @@ public class LevelManager : MonoBehaviour
     {
         yield return new WaitForSeconds(0.25f);
         CountdownTimerText.gameObject.SetActive(true);
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(2f);
+        CountdownTimerText.text = "Ready";
 
         while(_countdownTimer > 0)
         {
